@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Squidge — Squishy toys that squeeze back</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bagel+Fat+One&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --blue:#3b3bff; --pink:#ff7eb6; --lemon:#ffe44d; --mint:#7ff0c8; --ink:#1a1240;
+  --paper:#fff8fb; --text:#1a1240; --card:#ffffff;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--paper:#150f33;--text:#fff3f9;--card:#241a4f}
+}
+:root[data-theme="dark"]{--paper:#150f33;--text:#fff3f9;--card:#241a4f}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--text);font:400 1.0625rem/1.55 "DM Sans",system-ui,sans-serif;overflow-x:hidden}
+h1,h2,h3{font-family:"Bagel Fat One","DM Sans",system-ui,sans-serif;font-weight:400;line-height:.98;margin:0;letter-spacing:.005em}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--lemon);outline-offset:3px}
+
+/* nav */
+.nav{display:flex;justify-content:space-between;align-items:center;padding:20px clamp(20px,5vw,64px);position:absolute;inset:0 0 auto;z-index:5;color:#fff}
+.logo{font:400 1.7rem "Bagel Fat One",sans-serif;text-decoration:none}
+.bag{background:var(--lemon);color:var(--ink);border:0;border-radius:999px;padding:10px 18px;font:700 .95rem "DM Sans",sans-serif;cursor:pointer;transition:transform .5s cubic-bezier(.2,2.4,.4,1)}
+.bag.bump{transform:scale(1.2)}
+
+/* hero */
+.hero{background:var(--blue);color:#fff;min-height:100svh;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;padding:110px clamp(20px,5vw,64px) 60px;position:relative;overflow:hidden}
+.hero h1{font-size:clamp(3.2rem,9vw,8rem)}
+.hero p{max-width:30ch;font-size:1.25rem;margin:22px 0 30px;color:#e6e6ff}
+.cta{display:inline-block;background:var(--lemon);color:var(--ink);font:700 1.05rem "DM Sans",sans-serif;padding:16px 28px;border-radius:999px;text-decoration:none;box-shadow:0 6px 0 #b59f00;transition:transform .12s,box-shadow .12s}
+.cta:active{transform:translateY(5px);box-shadow:0 1px 0 #b59f00}
+.stage{display:flex;flex-direction:column;align-items:center;gap:18px;position:relative}
+.count{background:#ffffff22;border-radius:999px;padding:8px 18px;font-weight:700;font-size:.95rem}
+.hint{position:absolute;top:2%;right:4%;background:var(--lemon);color:var(--ink);font-weight:700;padding:8px 14px;border-radius:18px 18px 4px 18px;transform:rotate(6deg);transition:opacity .3s}
+.hint.gone{opacity:0}
+
+/* the jelly */
+.jelly{--c1:#ffb3d4;--c2:var(--pink);position:relative;width:min(78vw,430px);aspect-ratio:1/.9;
+  background:radial-gradient(circle at 28% 22%,#ffffffcc 0 6%,transparent 7%),radial-gradient(circle at 34% 28%,var(--c1),var(--c2) 70%);
+  border-radius:46% 54% 50% 50%/58% 54% 46% 42%;box-shadow:inset -20px -26px 44px #0000002a,inset 14px 14px 30px #ffffff55,0 30px 0 -8px #0000002e;
+  transform-origin:50% 100%;will-change:transform;cursor:grab;touch-action:manipulation;user-select:none;-webkit-user-select:none;border:0;padding:0;display:block}
+.jelly.press{cursor:grabbing}
+.face{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:12%;width:44%}
+.eyes{display:flex;justify-content:space-between;width:100%}
+.eye{width:16%;aspect-ratio:1/1.25;background:var(--ink);border-radius:50%;position:relative;transform:translate(var(--lx,0%),var(--ly,0%)) scale(var(--ex,1),var(--ey,1))}
+.eye::after{content:"";position:absolute;top:14%;left:22%;width:30%;height:30%;background:#fff;border-radius:50%}
+
+.press .eye::after{display:none}
+.mouth{position:relative;overflow:hidden;width:26%;height:0;padding-bottom:9%;border:5px solid var(--ink);border-top-width:0;border-radius:0 0 100px 100px;background:transparent;transition:width .22s,padding-bottom .22s,border-radius .22s,background .22s,border-top-width .22s}
+.mouth::after{content:"";position:absolute;left:50%;bottom:-30%;width:55%;height:70%;background:#ff6b9d;border-radius:50%;transform:translateX(-50%);opacity:0;transition:opacity .2s}
+.m-happy .mouth{width:38%;padding-bottom:15%}
+.m-wow .mouth{width:15%;padding-bottom:10%;border-top-width:5px;border-radius:50%}
+.press .mouth{width:34%;padding-bottom:17%;border-top-width:0;border-radius:0 0 100px 100px;background:var(--ink)}
+.press .mouth::after{opacity:1}
+.blush{position:absolute;top:56%;width:11%;aspect-ratio:2/1;background:#ff4d94;opacity:.45;border-radius:50%;transition:opacity .3s}
+.press .blush,.m-happy .blush,.m-wow .blush{opacity:.9}
+.blush.l{left:20%}.blush.r{right:20%}
+
+/* hero picker */
+.hero{transition:background .5s}
+.hero[data-t="2"]{background:#d9381e}
+.hero[data-t="3"]{background:#0b7a62}
+.hero[data-t="4"]{background:#1a1240}
+#hero[data-t="1"]{border-radius:50% 50% 46% 54%/62% 62% 38% 38%}
+#hero[data-t="2"]{--c1:#fff3a0;--c2:#ffb800;border-radius:58% 42% 52% 48%/50% 56% 44% 50%}
+#hero[data-t="3"]{--c1:#c8fff0;--c2:#17c99a;border-radius:40% 60% 56% 44%/60% 48% 52% 40%}
+#hero[data-t="4"]{--c1:#d9cfff;--c2:#7a5cff;border-radius:52% 48% 40% 60%/54% 50% 50% 46%}
+.picker{display:flex;gap:16px;padding:10px 6px 4px}
+.pick{width:68px;height:60px;border:0;padding:0;cursor:pointer;background:radial-gradient(circle at 32% 28%,#ffffffbb 0 8%,transparent 9%),radial-gradient(circle at 35% 30%,var(--c1),var(--c2) 72%);box-shadow:inset -6px -8px 12px #0003;transform-origin:50% 100%;transition:transform .45s cubic-bezier(.2,2.2,.4,1)}
+.pick:nth-child(1){--c1:#ffb3d4;--c2:#ff7eb6;border-radius:50% 50% 46% 54%/62% 62% 38% 38%}
+.pick:nth-child(2){--c1:#fff3a0;--c2:#ffb800;border-radius:58% 42% 52% 48%/50% 56% 44% 50%}
+.pick:nth-child(3){--c1:#c8fff0;--c2:#17c99a;border-radius:40% 60% 56% 44%/60% 48% 52% 40%}
+.pick:nth-child(4){--c1:#d9cfff;--c2:#7a5cff;border-radius:52% 48% 40% 60%/54% 50% 50% 46%}
+.pick[aria-pressed="true"]{transform:translateY(-6px) scale(1.18);outline:3px solid #fff;outline-offset:4px}
+.pick:active{transform:scale(1.1,.8)}
+.meta{text-align:center;color:#fff;display:flex;flex-direction:column;gap:2px}
+.meta b{font:400 1.9rem/1 "Bagel Fat One",sans-serif}
+.meta span{color:#ffffffcc;font-size:.98rem}
+
+/* sections */
+section{padding:clamp(64px,9vw,120px) clamp(20px,5vw,64px)}
+.sec-head{max-width:760px;margin-bottom:48px}
+.sec-head h2{font-size:clamp(2.4rem,6vw,4.6rem)}
+.sec-head p{margin:16px 0 0;max-width:46ch;opacity:.8}
+.shelf{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px}
+.toy{border-radius:34px 34px 34px 90px;padding:26px 24px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;color:var(--ink)}
+.toy:nth-child(2){border-radius:90px 34px 34px 34px;margin-top:34px}
+.toy:nth-child(3){border-radius:34px 90px 34px 34px}
+.toy:nth-child(4){border-radius:34px 34px 90px 34px;margin-top:34px}
+.toy .jelly{width:78%;margin-bottom:26px;--c1:#ffffffaa}
+.toy h3{font-size:1.9rem}
+.toy p{margin:4px 0 10px;font-size:.98rem}
+.buy{display:flex;align-items:center;gap:14px;font-weight:700}
+.add{background:var(--ink);color:#fff;border:0;border-radius:999px;padding:11px 20px;font:700 .95rem "DM Sans",sans-serif;cursor:pointer;transition:transform .12s}
+.add:active{transform:scale(.92)}
+.t1{background:var(--pink)}.t2{background:var(--lemon)}.t3{background:var(--mint)}.t4{background:#b9a8ff}
+.t1 .jelly{--c2:#ff4d94;border-radius:50% 50% 46% 54%/62% 62% 38% 38%}
+.t2 .jelly{--c2:#ffb800;border-radius:58% 42% 52% 48%/50% 56% 44% 50%}
+.t3 .jelly{--c2:#17c99a;border-radius:40% 60% 56% 44%/60% 48% 52% 40%}
+.t4 .jelly{--c2:#7a5cff;border-radius:52% 48% 40% 60%/54% 50% 50% 46%}
+
+.why{background:var(--lemon);color:var(--ink)}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:36px 48px}
+.fact h3{font-size:1.7rem;margin-bottom:10px}
+.fact p{margin:0;max-width:34ch}
+.fact i{display:block;width:54px;height:54px;background:var(--ink);margin-bottom:18px}
+.fact:nth-child(1) i{border-radius:50%}
+.fact:nth-child(2) i{border-radius:50% 50% 50% 8px}
+.fact:nth-child(3) i{border-radius:40% 60% 55% 45%/55% 45% 60% 40%}
+
+.end{background:var(--ink);color:#fff;text-align:center}
+.end h2{font-size:clamp(2.6rem,8vw,6.5rem);max-width:12ch;margin:0 auto 28px}
+footer{background:var(--ink);color:#ffffffaa;text-align:center;padding:0 20px 36px;font-size:.9rem}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,140%);background:var(--ink);color:#fff;padding:12px 20px;border-radius:999px;font-weight:700;transition:transform .4s cubic-bezier(.2,1.6,.4,1);z-index:9}
+.toast.show{transform:translate(-50%,0)}
+
+@media (max-width:820px){
+  .hero{grid-template-columns:1fr;padding-top:100px;text-align:left}
+  .toy:nth-child(2),.toy:nth-child(4){margin-top:0}
+}
+@media (prefers-reduced-motion:reduce){*{transition-duration:.01s!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+<header class="nav">
+  <a class="logo" href="#top">Squidge</a>
+  <button class="bag" id="bag" aria-label="Shopping bag">Bag (<span id="bagN">0</span>)</button>
+</header>
+
+<main id="top">
+<div class="hero" id="heroBox" data-t="1">
+  <div>
+    <h1>Squishy toys that squeeze back.</h1>
+    <p>Slow-rise foam friends you can press, pinch and squash. They always spring back to their happy shape.</p>
+    <a class="cta" href="#shop">Meet the squishies</a>
+  </div>
+  <div class="stage">
+    <span class="hint" id="hint">Squish me!</span>
+    <button class="jelly" id="hero" data-t="1" aria-label="Squish Peachy Bun. Hold to press, release to bounce back.">
+      <span class="face"><span class="eyes"><span class="eye"></span><span class="eye"></span></span><span class="mouth"></span></span>
+      <span class="blush l"></span><span class="blush r"></span>
+    </button>
+    <div class="meta" aria-live="polite"><b id="tname">Peachy Bun</b><span id="tline">Extra slow rise. Perfect for desk stress. · ₱249</span></div>
+    <div class="picker" role="group" aria-label="Choose a squishy">
+      <button class="pick" aria-label="Peachy Bun" aria-pressed="true"></button>
+      <button class="pick" aria-label="Honey Pup" aria-pressed="false"></button>
+      <button class="pick" aria-label="Mint Blob" aria-pressed="false"></button>
+      <button class="pick" aria-label="Grape Mochi" aria-pressed="false"></button>
+    </div>
+    <div class="count" aria-live="polite">Squishes so far: <span id="n">0</span></div>
+  </div>
+</div>
+
+<section id="shop">
+  <div class="sec-head">
+    <h2>Pick your squish</h2>
+    <p>Four soft friends, four different personalities. Give each one a press before you choose.</p>
+  </div>
+  <div class="shelf">
+    <article class="toy t1">
+      <button class="jelly" aria-label="Squish Peachy Bun"><span class="face"><span class="eyes"><span class="eye"></span><span class="eye"></span></span><span class="mouth"></span></span></button>
+      <h3>Peachy Bun</h3><p>Extra slow rise. Perfect for desk stress.</p>
+      <div class="buy"><span>₱249</span><button class="add">Add to bag</button></div>
+    </article>
+    <article class="toy t2">
+      <button class="jelly" aria-label="Squish Honey Pup"><span class="face"><span class="eyes"><span class="eye"></span><span class="eye"></span></span><span class="mouth"></span></span></button>
+      <h3>Honey Pup</h3><p>Medium squish with a satisfying bounce.</p>
+      <div class="buy"><span>₱229</span><button class="add">Add to bag</button></div>
+    </article>
+    <article class="toy t3">
+      <button class="jelly" aria-label="Squish Mint Blob"><span class="face"><span class="eyes"><span class="eye"></span><span class="eye"></span></span><span class="mouth"></span></span></button>
+      <h3>Mint Blob</h3><p>Soft and cool-colored. Fits in a pocket.</p>
+      <div class="buy"><span>₱199</span><button class="add">Add to bag</button></div>
+    </article>
+    <article class="toy t4">
+      <button class="jelly" aria-label="Squish Grape Mochi"><span class="face"><span class="eyes"><span class="eye"></span><span class="eye"></span></span><span class="mouth"></span></span></button>
+      <h3>Grape Mochi</h3><p>Our biggest, squishiest, two-hand toy.</p>
+      <div class="buy"><span>₱299</span><button class="add">Add to bag</button></div>
+    </article>
+  </div>
+</section>
+
+<section class="why">
+  <div class="sec-head"><h2>Squishy on purpose</h2></div>
+  <div class="facts">
+    <div class="fact"><i></i><h3>Slow-rise foam</h3><p>Press it flat and watch it ease back to shape over a few seconds.</p></div>
+    <div class="fact"><i></i><h3>Soft-touch skin</h3><p>A smooth, scent-free coating that feels good in your hand and does not get sticky.</p></div>
+    <div class="fact"><i></i><h3>Built to be squeezed</h3><p>Tested for thousands of squishes, so it keeps its shape long after the first week.</p></div>
+  </div>
+</section>
+
+<section class="end">
+  <h2>Go on, give one a squeeze.</h2>
+  <a class="cta" href="#shop">Shop squishies</a>
+</section>
+</main>
+<footer>© 2026 Squidge. Squish responsibly.</footer>
+<div class="toast" id="toast" role="status"></div>
+
+<script>
+(function(){
+  var total=0,n=document.getElementById('n'),hint=document.getElementById('hint');
+
+  /* spring engine: squash, wobble, hop, blink, eye tracking, moods */
+  var Sq=(function(){
+    var rm=window.matchMedia('(prefers-reduced-motion: reduce)').matches,all=[],mx=-9999,my=-9999,last=performance.now();
+    function mood(st,m){st.el.classList.remove('m-wow','m-happy');if(m)st.el.classList.add('m-'+m);st.m=m}
+    function settle(st){st.hold=false;mood(st,st.hov?'happy':'')}
+    function later(st,fn,ms){st.tm.push(setTimeout(fn,ms))}
+    function clear(st){st.tm.forEach(clearTimeout);st.tm=[]}
+    function init(el,i){
+      var st={el:el,s:0,v:0,target:0,k:420,c:26,y:0,yv:0,tilt:0,ex:1,ey:1,lx:0,ly:0,m:'',tm:[],hov:false,hold:false,pressed:false,ph:i*1.7,blinkAt:performance.now()+1200+Math.random()*2500,blinkEnd:0};
+      el.__sq=st;all.push(st);
+      el.addEventListener('pointerenter',function(){st.hov=true;if(!st.pressed&&!st.hold)mood(st,'happy')});
+      el.addEventListener('pointerleave',function(){st.hov=false;if(!st.pressed&&!st.hold)mood(st,'')});
+    }
+    function press(el,e){
+      var st=el.__sq;if(!st)return;
+      clear(st);st.hold=false;st.pressed=true;mood(st,'');
+      var r=el.getBoundingClientRect(),nx=(e&&e.clientX!=null)?((e.clientX-r.left)/r.width-.5)*2:0;
+      st.tilt=Math.max(-1,Math.min(1,nx))*5;st.target=1;st.k=420;st.c=26;
+    }
+    function release(el){
+      var st=el.__sq;if(!st||!st.pressed)return;
+      st.pressed=false;st.target=0;st.k=200;st.c=6.5;st.hold=true;mood(st,'wow');
+      clear(st);later(st,function(){mood(st,'happy')},200);later(st,function(){settle(st)},1100);
+    }
+    function hop(el){
+      var st=el.__sq;if(!st)return;
+      clear(st);st.hold=true;st.pressed=false;st.target=0;st.k=200;st.c=6.5;
+      st.v-=9;st.yv=-el.offsetHeight*2.2;st.tilt=(Math.random()<.5?-1:1)*4;
+      mood(st,'happy');later(st,function(){settle(st)},1000);
+    }
+    function frame(now){
+      var dt=Math.min(.033,Math.max(.001,(now-last)/1000));last=now;
+      all.forEach(function(st){
+        var el=st.el,t=now/1000;
+        if(rm){st.s=st.target;st.v=0;st.y=0;st.yv=0}
+        else{
+          var n=Math.max(1,Math.ceil(dt/.004)),h=dt/n;
+          for(var i=0;i<n;i++){
+            st.v+=((st.target-st.s)*st.k-st.v*st.c)*h;st.s+=st.v*h;
+            st.yv+=(-st.y*300-st.yv*13)*h;st.y+=st.yv*h;
+          }
+        }
+        var br=rm?0:Math.sin(t*2.2+st.ph);
+        var sy=Math.max(.5,1-.28*st.s+.012*br),sx=1+.2*st.s-.006*br;
+        el.style.transform='translateY('+st.y.toFixed(2)+'px) rotate('+(st.tilt*st.s).toFixed(2)+'deg) scale('+sx.toFixed(4)+','+sy.toFixed(4)+')';
+        var r=el.getBoundingClientRect(),tx=0,ty=0;
+        if(mx>-9000&&!st.pressed){
+          tx=Math.max(-1,Math.min(1,(mx-(r.left+r.width/2))/300))*40;
+          ty=Math.max(-1,Math.min(1,(my-(r.top+r.height/2))/300))*40;
+        }
+        var tex=1,tey=1;
+        if(st.pressed){tex=1.3;tey=.14}
+        else if(st.m==='wow'){tex=1.2;tey=1.25}
+        else if(st.m==='happy'){tey=.6}
+        if(now<st.blinkEnd)tey=Math.min(tey,.08);
+        else if(now>st.blinkAt){st.blinkEnd=now+130;st.blinkAt=now+2200+Math.random()*3600}
+        var a=1-Math.exp(-dt*14),b=1-Math.exp(-dt*32);
+        st.lx+=(tx-st.lx)*a;st.ly+=(ty-st.ly)*a;st.ex+=(tex-st.ex)*b;st.ey+=(tey-st.ey)*b;
+        el.style.setProperty('--lx',st.lx.toFixed(1)+'%');
+        el.style.setProperty('--ly',st.ly.toFixed(1)+'%');
+        el.style.setProperty('--ex',st.ex.toFixed(3));
+        el.style.setProperty('--ey',st.ey.toFixed(3));
+      });
+      requestAnimationFrame(frame);
+    }
+    document.querySelectorAll('.jelly').forEach(init);
+    window.addEventListener('pointermove',function(e){mx=e.clientX;my=e.clientY},{passive:true});
+    document.documentElement.addEventListener('pointerleave',function(){mx=-9999;my=-9999});
+    requestAnimationFrame(frame);
+    return {press:press,release:release,hop:hop};
+  })();
+  function wire(el,count){
+    function down(e){el.classList.add('press');Sq.press(el,e)}
+    function up(){
+      if(!el.classList.contains('press'))return;
+      el.classList.remove('press');Sq.release(el);
+      if(count){total++;n.textContent=total;hint.classList.add('gone')}
+    }
+    el.addEventListener('pointerdown',down);
+    el.addEventListener('pointerup',up);
+    el.addEventListener('pointerleave',up);
+    el.addEventListener('pointercancel',up);
+    el.addEventListener('keydown',function(e){if((e.key===' '||e.key==='Enter')&&!e.repeat){e.preventDefault();down()}});
+    el.addEventListener('keyup',function(e){if(e.key===' '||e.key==='Enter')up()});
+  }
+  wire(document.getElementById('hero'),true);
+  document.querySelectorAll('.toy .jelly').forEach(function(j){wire(j,false)});
+
+  var toys=[
+    {n:'Peachy Bun',l:'Extra slow rise. Perfect for desk stress. · ₱249'},
+    {n:'Honey Pup',l:'Medium squish with a satisfying bounce. · ₱229'},
+    {n:'Mint Blob',l:'Soft and cool-colored. Fits in a pocket. · ₱199'},
+    {n:'Grape Mochi',l:'Our biggest, squishiest, two-hand toy. · ₱299'}
+  ];
+  var box=document.getElementById('heroBox'),hero=document.getElementById('hero'),picks=document.querySelectorAll('.pick');
+  picks.forEach(function(b,i){
+    b.addEventListener('click',function(){
+      var t=String(i+1);
+      box.setAttribute('data-t',t);hero.setAttribute('data-t',t);
+      document.getElementById('tname').textContent=toys[i].n;
+      document.getElementById('tline').textContent=toys[i].l;
+      hero.setAttribute('aria-label','Squish '+toys[i].n+'. Hold to press, release to bounce back.');
+      picks.forEach(function(p){p.setAttribute('aria-pressed',p===b?'true':'false')});
+      Sq.hop(hero);
+    });
+  });
+
+  var bagN=document.getElementById('bagN'),bag=document.getElementById('bag'),toast=document.getElementById('toast'),items=0,tt;
+  document.querySelectorAll('.add').forEach(function(b){
+    b.addEventListener('click',function(){
+      items++;bagN.textContent=items;
+      var name=b.closest('.toy').querySelector('h3').textContent;
+      toast.textContent=name+' added to bag';toast.classList.add('show');
+      bag.classList.add('bump');setTimeout(function(){bag.classList.remove('bump')},160);
+      clearTimeout(tt);tt=setTimeout(function(){toast.classList.remove('show')},1800);
+    });
+  });
+})();
+</script>
+</body>
+</html>
